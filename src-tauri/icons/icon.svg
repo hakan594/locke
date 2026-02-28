@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="220" fill="#0a0a0a"/>
+  <!-- Shield — exact same path as in app, scaled from 24x24 to 1024x1024 -->
+  <!-- Original: M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z, scale=1024/24≈42.67 -->
+  <path d="M512 938
+    s341-170 341-426
+    V213
+    l-341-128
+    -341 128
+    v299
+    c0 256 341 426 341 426z"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="42"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  />
+</svg>
