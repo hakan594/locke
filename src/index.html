@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Locke</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div data-tauri-drag-region class="titlebar">
+  <div class="titlebar-title" data-tauri-drag-region>
+    <svg width="14" height="14" style="margin-right: 6px; color: var(--text)"><use href="#i-shield"/></svg>
+    Locke
+  </div>
+  <div class="titlebar-controls">
+    <div class="titlebar-button" id="titlebar-minimize">
+      <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="4" width="8" height="1" fill="currentColor"/></svg>
+    </div>
+    <div class="titlebar-button" id="titlebar-maximize">
+      <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    </div>
+    <div class="titlebar-button titlebar-close" id="titlebar-close">
+      <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+</div>
+
+<svg style="display:none">
+  <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="15" rx="2"/><path d="M1 10h22"/><circle cx="17" cy="13.5" r="1.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></symbol>
+  <symbol id="i-bitcoin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"/></symbol>
+  <symbol id="i-ethereum" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 4.5 7.5L12 14l-4.5-4.5L12 2Z"/><path d="m12 14 4.5-4.5L12 22l-4.5-12.5L12 14Z"/></symbol>
+  <symbol id="i-solana" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15h13l3-3H7l-3 3Z"/><path d="M4 9h13l3-3H7l-3 3Z"/><path d="M20 21H7l-3-3h13l3 3Z"/></symbol>
+  <symbol id="i-network" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+</svg>
+
+<!-- Unlock -->
+<div id="screen-unlock" class="screen">
+  <button id="btn-quick-settings" class="btn-icon" style="position:absolute; top:20px; right:20px; border:none; background:transparent; color:var(--muted);"><svg width="24" height="24"><use href="#i-settings"/></svg></button>
+  <div class="unlock-card" id="unlock-drop-zone">
+    <div id="drop-overlay" class="drop-overlay hidden">
+      <svg width="48" height="48"><use href="#i-folder"/></svg>
+      <div>Drop .vault file here</div>
+    </div>
+    <div class="logo">
+      <svg width="44" height="44"><use href="#i-shield"/></svg>
+      <h1>Locke</h1>
+      <p class="subtitle typewriter" data-i18n="app_subtitle">Secure Vault</p>
+    </div>
+    <div class="tab-group">
+      <button class="tab active" data-tab="open" data-i18n="tab_open">Unlock</button>
+      <button class="tab" data-tab="new" data-i18n="tab_new">Create</button>
+    </div>
+    <div id="recent-files" class="recent-files hidden"></div>
+    <form id="form-open">
+      <label><span data-i18n="lbl_vault_file">Vault File</span>
+        <div class="row-input">
+          <input type="text" id="open-path" data-i18n-ph="ph_vault_file" placeholder="Select .vault file..." readonly />
+          <button type="button" id="btn-browse-open" class="btn-icon"><svg width="18" height="18"><use href="#i-folder"/></svg></button>
+        </div>
+      </label>
+      <label><span data-i18n="lbl_master_password">Master Password</span>
+        <div class="input-with-icon"><input type="password" id="open-password" data-i18n-ph="ph_password_enter" placeholder="Enter password" autocomplete="off" autocorrect="off" spellcheck="false" onpaste="return false" oncopy="return false" oncut="return false" /><button type="button" class="btn-eye" data-target="open-password"><svg width="18" height="18"><use href="#i-eye"/></svg></button></div>
+      </label>
+      <div id="yubikey-badge" class="badge hidden"><svg width="14" height="14"><use href="#i-key"/></svg> <span data-i18n="yubikey_detected">YubiKey Detected</span></div>
+      <button type="submit" class="btn-primary" data-i18n="btn_unlock">Unlock Vault</button>
+    </form>
+    <form id="form-new" class="hidden">
+      <label><span data-i18n="lbl_new_vault_location">New Vault Location</span>
+        <div class="row-input">
+          <input type="text" id="new-path" data-i18n-ph="ph_new_vault_location" placeholder="Choose location..." readonly />
+          <button type="button" id="btn-browse-new" class="btn-icon"><svg width="18" height="18"><use href="#i-folder"/></svg></button>
+        </div>
+      </label>
+      <label><span data-i18n="lbl_master_password">Master Password</span>
+        <div class="input-with-icon"><input type="password" id="new-password" data-i18n-ph="ph_password_create" placeholder="Create strong password" /><button type="button" class="btn-eye" data-target="new-password"><svg width="18" height="18"><use href="#i-eye"/></svg></button></div>
+      </label>
+      <label><span data-i18n="lbl_confirm_password">Confirm Password</span>
+        <div class="input-with-icon"><input type="password" id="new-password2" data-i18n-ph="ph_password_repeat" placeholder="Repeat password" /><button type="button" class="btn-eye" data-target="new-password2"><svg width="18" height="18"><use href="#i-eye"/></svg></button></div>
+      </label>
+      <div id="pw-strength-bar"></div>
+      <button type="submit" class="btn-primary" data-i18n="btn_create_vault">Create Vault</button>
+    </form>
+    <div id="unlock-error" class="error-msg hidden"></div>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="screen-main" class="screen hidden">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <svg width="22" height="22"><use href="#i-shield"/></svg> Locke
+    </div>
+    <nav id="category-list" class="cat-list">
+      <div class="cat-item active" data-cat="all"><span data-i18n="nav_all">All Items</span></div>
+      <div class="cat-item" data-cat="General"><span data-i18n="nav_general">General</span></div>
+      <div class="cat-item" data-cat="Email"><span data-i18n="nav_email">Email</span></div>
+      <div class="cat-item" data-cat="Social"><span data-i18n="nav_social">Social</span></div>
+      <div class="cat-item" data-cat="Finance"><span data-i18n="nav_finance">Finance</span></div>
+      <div class="cat-item" data-cat="Crypto"><span data-i18n="nav_crypto">Crypto</span></div>
+      <div class="cat-item" data-cat="favourite"><svg width="14" height="14" style="color:#f5a623;vertical-align:middle"><use href="#i-star"/></svg> <span data-i18n="nav_favorites">Favorites</span></div>
+    </nav>
+      <div class="sidebar-footer">
+        <button id="btn-wallet" class="btn-sidebar-action"><svg width="16" height="16"><use href="#i-wallet"/></svg> <span data-i18n="btn_wallet">Wallet</span></button>
+        <button id="btn-settings" class="btn-sidebar-action"><svg width="16" height="16"><use href="#i-settings"/></svg> <span data-i18n="btn_settings">Settings</span></button>
+        <button id="btn-lock" class="btn-sidebar-action"><svg width="16" height="16"><use href="#i-lock"/></svg> <span data-i18n="btn_lock">Lock Vault</span></button>
+      </div>
+    </aside>
+      <main class="content">
+      <!-- Settings Screen -->
+            <div id="screen-settings" class="screen hidden settings-screen">
+        <div class="settings-header">
+          <div class="settings-header-inner">
+            <h2 data-i18n="settings_title">Settings</h2>
+          </div>
+        </div>
+        <div class="settings-body">
+
+          <!-- Security -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><svg width="18" height="18"><use href="#i-shield"/></svg> <span data-i18n="settings_security">Security</span></h3>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_autolock">Auto-lock Vault</div>
+                <div class="settings-row-desc" data-i18n="settings_autolock_desc">Lock the vault after a period of inactivity</div>
+              </div>
+              <div class="custom-select settings-select" id="custom-autolock-select">
+                <div class="select-selected" id="setting-autolock-display">Never</div>
+                <div class="select-items hidden" id="setting-autolock-options">
+                  <!-- Options will be populated by JS -->
+                </div>
+                <input type="hidden" id="setting-autolock" value="0" />
+                <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_clipboard">Clear Clipboard</div>
+                <div class="settings-row-desc" data-i18n="settings_clipboard_desc">Automatically clear copied passwords from clipboard</div>
+              </div>
+              <div class="custom-select settings-select" id="custom-clipboard-select">
+                <div class="select-selected" id="setting-clipboard-display">Never</div>
+                <div class="select-items hidden" id="setting-clipboard-options">
+                  <!-- Options will be populated by JS -->
+                </div>
+                <input type="hidden" id="setting-clipboard" value="0" />
+                <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_lock_minimize">Lock vault when window is minimized</div>
+                <div class="settings-row-desc" data-i18n="settings_lock_minimize_desc">Immediately lock when the window is hidden</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-lock-minimize"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_hide_passwords">Hide passwords in list</div>
+                <div class="settings-row-desc" data-i18n="settings_hide_passwords_desc">Show  instead of passwords in the entry list</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-hide-passwords"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_reveal_timeout">Auto-hide Revealed Password</div>
+                <div class="settings-row-desc" data-i18n="settings_reveal_timeout_desc">Automatically re-hide password fields after they are revealed</div>
+              </div>
+              <div class="custom-select settings-select" id="custom-reveal-timeout-select">
+                <div class="select-selected" id="setting-reveal-timeout-display" data-i18n="autolock_never">Never</div>
+                <div class="select-items hidden" id="setting-reveal-timeout-options">
+                  <!-- Options will be populated by JS -->
+                </div>
+                <input type="hidden" id="setting-reveal-timeout" value="0" />
+                <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_confirm_reveal">Confirm Before Revealing Password</div>
+                <div class="settings-row-desc" data-i18n="settings_confirm_reveal_desc">Require master password before showing a stored password</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-confirm-reveal"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_lock_blur">Lock on Window Focus Loss</div>
+                <div class="settings-row-desc" data-i18n="settings_lock_blur_desc">Immediately lock the vault when the application window loses focus</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-lock-blur"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_block_devtools">Block Developer Tools</div>
+                <div class="settings-row-desc" data-i18n="settings_block_devtools_desc">Disable F12, Ctrl+Shift+I and right-click context menu</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-block-devtools"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_debugger_detect">Debugger Detection</div>
+                <div class="settings-row-desc" data-i18n="settings_debugger_detect_desc">Lock the vault immediately if a debugger is attached to the process</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-debugger-detect"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_process_monitor">Process Monitor</div>
+                <div class="settings-row-desc" data-i18n="settings_process_monitor_desc">Warn when known keyloggers or RAT software is detected</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-process-monitor"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_window_mask">Window Title Masking</div>
+                <div class="settings-row-desc" data-i18n="settings_window_mask_desc">Show "Untitled - Notepad" in the taskbar instead of Locke</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-window-mask"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <!-- Screen Protection -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><svg width="18" height="18"><use href="#i-shield"/></svg> <span data-i18n="settings_protection">Screen & Privacy</span></h3>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_screen_protect">Screen Capture Protection</div>
+                <div class="settings-row-desc" data-i18n="settings_screen_protect_desc">Hide content from screenshots, screen sharing and RAT spyware</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-screen-protect"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_max_attempts">Max Failed Unlock Attempts</div>
+                <div class="settings-row-desc" data-i18n="settings_max_attempts_desc">Clear memory and show error after N failed decryptions (0 = unlimited)</div>
+              </div>
+              <div class="custom-select settings-select" id="custom-max-attempts-select">
+                <div class="select-selected" id="setting-max-attempts-display" data-i18n="autolock_never">Never</div>
+                <div class="select-items hidden" id="setting-max-attempts-options">
+                  <div data-val="0" data-i18n="autolock_never">Never</div>
+                  <div data-val="3">3</div>
+                  <div data-val="5">5</div>
+                  <div data-val="10">10</div>
+                </div>
+                <input type="hidden" id="setting-max-attempts" value="0" />
+                <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_pw_min_length">Minimum Master Password Length</div>
+                <div class="settings-row-desc" data-i18n="settings_pw_min_length_desc">Require a minimum number of characters when creating a new vault</div>
+              </div>
+              <div class="custom-select settings-select" id="custom-pw-min-length-select">
+                <div class="select-selected" id="setting-pw-min-length-display" data-i18n="pw_min_12">12 characters</div>
+                <div class="select-items hidden" id="setting-pw-min-length-options">
+                  <div data-val="8" data-i18n="pw_min_8">8 characters</div>
+                  <div data-val="12" data-i18n="pw_min_12">12 characters</div>
+                  <div data-val="16" data-i18n="pw_min_16">16 characters</div>
+                  <div data-val="20" data-i18n="pw_min_20">20 characters</div>
+                </div>
+                <input type="hidden" id="setting-pw-min-length" value="12" />
+                <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_pw_age">Password Age Warning</div>
+                <div class="settings-row-desc" data-i18n="settings_pw_age_desc">Highlight entries whose password hasn't been changed for N days</div>
+              </div>
+              <div class="custom-select settings-select" id="custom-pw-age-select">
+                <div class="select-selected" id="setting-pw-age-display" data-i18n="autolock_never">Never</div>
+                <div class="select-items hidden" id="setting-pw-age-options">
+                  <div data-val="0" data-i18n="autolock_never">Never</div>
+                  <div data-val="30" data-i18n="pw_age_30">30 days</div>
+                  <div data-val="60" data-i18n="pw_age_60">60 days</div>
+                  <div data-val="90" data-i18n="pw_age_90">90 days</div>
+                  <div data-val="180" data-i18n="pw_age_180">180 days</div>
+                </div>
+                <input type="hidden" id="setting-pw-age" value="0" />
+                <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_entry_timeout">Auto-close Entry Modal</div>
+                <div class="settings-row-desc" data-i18n="settings_entry_timeout_desc">Automatically close the open entry dialog after inactivity</div>
+              </div>
+              <div class="custom-select settings-select" id="custom-entry-timeout-select">
+                <div class="select-selected" id="setting-entry-timeout-display" data-i18n="autolock_never">Never</div>
+                <div class="select-items hidden" id="setting-entry-timeout-options">
+                  <!-- Options will be populated by JS -->
+                </div>
+                <input type="hidden" id="setting-entry-timeout" value="0" />
+                <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Memory & File Integrity (always on) -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><svg width="18" height="18"><use href="#i-shield"/></svg> <span data-i18n="settings_memory_integrity">Memory &amp; File Integrity</span></h3>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_mlock">Memory Lock (mlock)</div>
+                <div class="settings-row-desc" data-i18n="settings_mlock_desc">Pins the master key in physical RAM to prevent it from being swapped to disk</div>
+              </div>
+              <span class="badge-always-on" data-i18n="badge_always_on">Always Active</span>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_vault_hmac">HMAC Vault Integrity</div>
+                <div class="settings-row-desc" data-i18n="settings_vault_hmac_desc">Every vault save includes a cryptographic signature — tampering is detected on open</div>
+              </div>
+              <span class="badge-always-on" data-i18n="badge_always_on">Always Active</span>
+            </div>
+          </div>
+
+          <!-- Appearance -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><svg width="18" height="18"><use href="#i-settings"/></svg> <span data-i18n="settings_appearance">Appearance</span></h3>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_theme">Theme</div>
+                <div class="settings-row-desc" data-i18n="settings_theme_desc">Choose the application color theme</div>
+              </div>
+              <div class="custom-select settings-select" id="custom-theme-select">
+                <div class="select-selected" id="setting-theme-display">Default (Dark)</div>
+                <div class="select-items hidden" id="setting-theme-options">
+                  <div data-val="default" data-i18n="theme_default">Default (Dark)</div>
+                  <div data-val="light" data-i18n="theme_light">Light</div>
+                  <div data-val="oled" data-i18n="theme_oled">OLED Black</div>
+                  <div data-val="ocean" data-i18n="theme_ocean">Ocean</div>
+                  <div data-val="forest" data-i18n="theme_forest">Forest</div>
+                  <div data-val="mocha" data-i18n="theme_mocha">Mocha</div>
+                  <div data-val="nordic" data-i18n="theme_nordic">Nordic</div>
+                </div>
+                <input type="hidden" id="setting-theme" value="default" />
+                <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_language">Language</div>
+                <div class="settings-row-desc" data-i18n="settings_language_desc">Choose the interface language</div>
+              </div>
+              <div class="custom-select settings-select" id="custom-lang-select">
+                <div class="select-selected" id="setting-lang-display">English</div>
+                <div class="select-items hidden" id="setting-lang-options">
+                  <div data-val="en">English</div>
+                  <div data-val="ru">Русский</div>
+                </div>
+                <input type="hidden" id="setting-lang" value="en" />
+                <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_compact">Compact mode</div>
+                <div class="settings-row-desc" data-i18n="settings_compact_desc">Reduce spacing between vault entries</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="setting-compact"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <!-- Vault & Data -->
+          <div class="settings-card">
+            <h3 class="settings-card-title"><svg width="18" height="18"><use href="#i-folder"/></svg> <span data-i18n="settings_vault">Vault & Data</span></h3>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_change_pw">Change Master Password</div>
+                <div class="settings-row-desc" data-i18n="settings_change_pw_desc">Update the password used to encrypt your vault</div>
+              </div>
+              <button id="btn-change-password" class="btn-ghost btn-sm" style="margin-top:0"><span data-i18n="settings_change_pw">Change</span></button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-label">
+                <div data-i18n="settings_backup">Backup Vault</div>
+                <div class="settings-row-desc" data-i18n="settings_backup_desc">Create a copy of your encrypted vault file</div>
+              </div>
+              <button id="btn-backup-vault" class="btn-ghost btn-sm" style="margin-top:0"><span data-i18n="settings_backup">Backup</span></button>
+            </div>
+          </div>
+
+          <!-- Access Log -->
+          <div class="settings-card settings-card-wide">
+            <h3 class="settings-card-title"><svg width="18" height="18"><use href="#i-key"/></svg> <span data-i18n="settings_access_log">Access Log</span></h3>
+            <div style="display:flex;gap:10px;margin-bottom:14px;">
+              <button id="btn-refresh-log" class="btn-ghost btn-sm" style="margin-top:0;gap:6px;display:flex;align-items:center">
+                <svg width="14" height="14"><use href="#i-refresh"/></svg> <span data-i18n="settings_log_refresh">Refresh</span>
+              </button>
+              <button id="btn-clear-log" class="btn-ghost btn-sm" style="margin-top:0;gap:6px;display:flex;align-items:center;color:var(--danger)">
+                <svg width="14" height="14"><use href="#i-x"/></svg> <span data-i18n="settings_log_clear">Clear Log</span>
+              </button>
+            </div>
+            <div id="access-log-list" class="access-log-list">
+              <div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:16px 0" data-i18n="settings_log_empty">No events recorded yet</div>
+            </div>
+          </div>
+
+          <!-- About -->
+          <div class="settings-card settings-card-wide">
+            <h3 class="settings-card-title"><svg width="18" height="18"><use href="#i-shield"/></svg> <span data-i18n="settings_about">About</span></h3>
+            <div class="settings-about-grid">
+              <div class="settings-about-item">
+                <span class="settings-about-label" data-i18n="settings_version">Version</span>
+                <span class="settings-about-value">1.0.0</span>
+              </div>
+              <div class="settings-about-item">
+                <span class="settings-about-label" data-i18n="settings_encryption">Encryption</span>
+                <span class="settings-about-value">AES-256-GCM</span>
+              </div>
+              <div class="settings-about-item">
+                <span class="settings-about-label" data-i18n="settings_kdf">Key Derivation</span>
+                <span class="settings-about-value">Argon2id</span>
+              </div>
+              <div class="settings-about-item">
+                <span class="settings-about-label">Backend</span>
+                <span class="settings-about-value">Rust + Tauri</span>
+              </div>
+            </div>
+          </div>
+
+          <button id="btn-save-settings" class="btn-primary" style="max-width:200px"><span data-i18n="settings_save">Save Settings</span></button>
+        </div>
+      </div>
+
+        <!-- Main Vault Screen -->
+      <div id="screen-vault" class="screen" style="display:flex;flex-direction:column;">
+        <div class="toolbar">
+      <input type="search" id="search-input" data-i18n-ph="search_placeholder" placeholder="Search vault..." />
+      <button id="btn-add-entry" class="btn-primary btn-sm"><svg width="16" height="16"><use href="#i-plus"/></svg> <span data-i18n="btn_new_item">New Item</span></button>
+    </div>
+            <div id="entry-list" class="entry-list"></div>
+      </div>
+
+      <!-- Wallet Section -->
+      <div id="screen-wallet" class="screen hidden wallet-screen">
+        <div class="wallet-layout">
+          <div class="wallet-sidebar">
+            <div class="wallet-sidebar-hd">
+              <span data-i18n="wallet_title">Wallets</span>
+              <button id="btn-new-wallet" class="btn-icon"><svg width="16" height="16"><use href="#i-plus"/></svg></button>
+            </div>
+            <div id="wallet-list"></div>
+          </div>
+          <div id="wallet-detail-panel" class="wallet-detail-panel">
+            <div id="wallet-empty-state" class="wallet-empty-state">
+              <svg width="52" height="52" style="opacity:.3"><use href="#i-wallet"/></svg>
+              <p data-i18n="wallet_empty">No wallets yet</p>
+              <button class="btn-primary" id="btn-wallet-start" data-i18n="wallet_create_btn">Create Wallet</button>
+            </div>
+            <div id="wallet-detail" class="hidden wallet-detail-container">
+              <div class="wallet-header-top">
+                <div class="wallet-info">
+                  <div class="wallet-avatar" id="wd-avatar"></div>
+                  <div>
+                    <div class="wallet-detail-name" id="wd-name"></div>
+                    <div class="wallet-detail-sub" id="wd-created"></div>
+                  </div>
+                </div>
+                <div class="wallet-top-actions">
+                  <button id="btn-wd-export" class="btn-icon" title="Backup Seed"><svg width="18" height="18"><use href="#i-key"/></svg></button>
+                  <button id="btn-wd-delete" class="btn-icon text-danger" title="Delete Wallet"><svg width="18" height="18"><use href="#i-x"/></svg></button>
+                </div>
+              </div>
+              
+              <div class="wallet-balance-section">
+                <div class="wallet-total-label" data-i18n="wallet_total_balance">Total Balance</div>
+                <div class="wallet-total-value" id="wd-total-balance">$0.00</div>
+                <div class="wallet-main-actions">
+                  <button class="wallet-action-btn" id="btn-wd-send">
+                    <div class="wa-icon"><svg width="20" height="20"><use href="#i-send"/></svg></div>
+                    <span data-i18n="wallet_send">Send</span>
+                  </button>
+                  <button class="wallet-action-btn" id="btn-wd-receive">
+                    <div class="wa-icon"><svg width="20" height="20" style="transform:rotate(180deg)"><use href="#i-send"/></svg></div>
+                    <span data-i18n="wallet_receive">Receive</span>
+                  </button>
+                  <button class="wallet-action-btn" id="btn-wd-swap">
+                    <div class="wa-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                      </svg>
+                    </div>
+                    <span data-i18n="wallet_swap">Swap</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="wallet-assets-header">
+                <h3 data-i18n="wallet_assets">Assets</h3>
+                <button class="btn-ghost btn-sm" id="btn-refresh-all"><svg width="14" height="14"><use href="#i-refresh"/></svg> <span data-i18n="btn_refresh">Refresh</span></button>
+              </div>
+              <div id="wd-chains" class="wd-chains"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+</div>
+
+<!-- Entry Modal -->
+<div id="modal-entry" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:12px;min-width:0">
+        <div id="modal-entry-avatar" class="entry-avatar" style="flex-shrink:0;width:38px;height:38px;font-size:1rem">?</div>
+        <h2 id="modal-entry-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Item</h2>
+      </div>
+      <button class="btn-close" id="btn-close-modal"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+    </div>
+    <!-- View / Edit tabs (hidden for new items) -->
+    <div class="entry-modal-tabs hidden" id="entry-modal-tabs">
+      <button class="entry-modal-tab active" id="tab-btn-view" data-i18n="tab_view">View</button>
+      <button class="entry-modal-tab" id="tab-btn-edit" data-i18n="tab_edit">Edit</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- ── VIEW PANEL ── -->
+      <div id="entry-view-panel" class="hidden">
+        <div class="view-field" id="vf-username-field">
+          <div class="view-label" data-i18n="lbl_username">Username / Email</div>
+          <div class="view-value-row">
+            <span id="vf-username" class="view-value"></span>
+            <button class="btn-icon view-copy-btn" data-field="vf-username" title="Copy"><svg width="14" height="14"><use href="#i-copy"/></svg></button>
+          </div>
+        </div>
+        <div class="view-field">
+          <div class="view-label" data-i18n="lbl_password">Password</div>
+          <div class="view-value-row">
+            <span id="vf-password" class="view-value view-password">••••••••••</span>
+            <button class="btn-eye btn-icon" id="vf-pw-eye" style="color:var(--muted)"><svg width="16" height="16"><use href="#i-eye"/></svg></button>
+            <button class="btn-icon view-copy-btn" data-field="vf-password" data-copy-real="true" title="Copy"><svg width="14" height="14"><use href="#i-copy"/></svg></button>
+          </div>
+        </div>
+        <div class="view-field hidden" id="vf-url-field">
+          <div class="view-label" data-i18n="lbl_url">URL</div>
+          <div class="view-value-row">
+            <span id="vf-url" class="view-value"></span>
+            <button class="btn-icon view-copy-btn" data-field="vf-url" title="Copy"><svg width="14" height="14"><use href="#i-copy"/></svg></button>
+          </div>
+        </div>
+        <div class="view-field hidden" id="vf-notes-field">
+          <div class="view-label" data-i18n="lbl_notes">Notes</div>
+          <pre id="vf-notes" class="view-value view-notes"></pre>
+        </div>
+        <div class="view-field">
+          <div class="view-label" data-i18n="lbl_category">Category</div>
+          <span id="vf-category" class="view-badge"></span>
+        </div>
+        <div class="view-field hidden" id="vf-totp-field">
+          <div class="totp-box" style="margin:0">
+            <div class="totp-box-title" data-i18n="lbl_totp">2FA / TOTP</div>
+            <div class="totp-code" id="totp-code-value">------</div>
+            <progress id="totp-progress" max="30" value="0"></progress>
+          </div>
+        </div>
+        <div class="modal-actions" style="margin-top:24px">
+          <button type="button" id="btn-go-edit" class="btn-primary" style="flex:1;margin-top:0" data-i18n="tab_edit">Edit</button>
+          <button type="button" id="btn-delete-entry-view" class="btn-danger hidden" data-i18n="btn_delete">Delete</button>
+        </div>
+      </div>
+
+      <!-- ── EDIT PANEL ── -->
+      <div id="entry-edit-panel"><form id="form-entry">
+        <input type="hidden" id="entry-id" />
+        <label><span data-i18n="lbl_title">Title</span><input type="text" id="entry-title" required data-i18n-ph="ph_entry_title" placeholder="e.g. Binance" /></label>
+        <label><span data-i18n="lbl_username">Username / Email</span><input type="text" id="entry-username" placeholder="user@example.com" /></label>
+        <label><span data-i18n="lbl_password">Password</span>
+          <div class="row-input"><div class="input-with-icon" style="flex:1"><input type="password" id="entry-password" data-i18n-ph="ph_password_enter" placeholder="password" /><button type="button" class="btn-eye" data-target="entry-password"><svg width="18" height="18"><use href="#i-eye"/></svg></button></div><button type="button" id="btn-fill-gen" class="btn-icon"><svg width="16" height="16"><use href="#i-dice"/></svg></button></div>
+        </label>
+        <label><span data-i18n="lbl_url">URL</span><input type="text" id="entry-url" data-i18n-ph="ph_entry_url" placeholder="github.com" /></label>
+        <label><span data-i18n="lbl_category">Category</span>
+          <div class="custom-select" id="custom-category-select">
+            <div class="select-selected" id="entry-category-display">General</div>
+            <div class="select-items hidden" id="entry-category-options">
+              <div data-val="General" data-i18n="nav_general">General</div>
+              <div data-val="Email" data-i18n="nav_email">Email</div>
+              <div data-val="Social" data-i18n="nav_social">Social</div>
+              <div data-val="Finance" data-i18n="nav_finance">Finance</div>
+              <div data-val="Crypto" data-i18n="nav_crypto">Crypto</div>
+            </div>
+            <input type="hidden" id="entry-category" value="General" />
+            <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+          </div>
+        </label>
+        <label><span data-i18n="lbl_notes">Notes</span><textarea id="entry-notes" rows="3" data-i18n-ph="lbl_notes_ph" placeholder="Seed phrases, recovery codes..."></textarea></label>
+        <label class="lbl-check"><input type="checkbox" id="entry-favourite" /> <span data-i18n="lbl_favorite">Add to Favorites</span></label>
+        <div class="totp-box">
+          <div class="totp-box-title" data-i18n="lbl_totp">2FA / TOTP</div>
+          <div id="totp-display" class="hidden">
+            <div class="totp-code" id="totp-code-value-edit">------</div>
+            <progress id="totp-progress-edit" max="30" value="0"></progress>
+          </div>
+          <div class="row-input">
+            <input type="text" id="entry-totp-secret" data-i18n-ph="ph_totp_secret" placeholder="Base32 secret" />
+            <button type="button" id="btn-save-totp" class="btn-icon" style="padding:0 14px;white-space:nowrap" data-i18n="btn_save_totp">Save</button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary" style="flex:1;margin-top:0" data-i18n="btn_save">Save</button>
+          <button type="button" id="btn-delete-entry" class="btn-danger hidden" data-i18n="btn_delete">Delete</button>
+        </div>
+      </form></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Generator Modal -->
+<div id="modal-gen" class="modal-overlay hidden">
+  <div class="modal-card" style="width:480px">
+    <div class="modal-head">
+      <h2 data-i18n="modal_generator">Password Generator</h2>
+      <button class="btn-close" id="btn-close-gen"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body"><div style="display:flex;flex-direction:column;gap:20px">
+      <label><span data-i18n="lbl_length">Length</span>: <span id="gen-len-val">20</span>
+        <input type="range" id="gen-length" min="8" max="64" value="20" style="margin-top:10px" />
+      </label>
+      <label class="lbl-check"><input type="checkbox" id="gen-symbols" checked /> <span data-i18n="lbl_symbols">Include Symbols (!@#...)</span></label>
+      <div class="row-input">
+        <input type="text" id="gen-result" readonly style="font-family:monospace;font-size:1.05rem" />
+        <button id="btn-regen" class="btn-icon"><svg width="16" height="16"><use href="#i-refresh"/></svg></button>
+        <button id="btn-copy-gen" class="btn-icon"><svg width="16" height="16"><use href="#i-copy"/></svg></button>
+      </div>
+      <button id="btn-gen-ok" class="btn-primary" data-i18n="btn_use_password">Use Password</button>
+      </div></div>
+    </div>
+  </div>
+
+
+  <!-- Change Master Password Modal -->
+  <div id="modal-change-pw" class="modal-overlay hidden">
+    <div class="modal-card" style="width:440px">
+      <div class="modal-head">
+        <h2 data-i18n="change_pw_title">Change Master Password</h2>
+        <button class="btn-close" id="btn-close-change-pw"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-change-pw" style="display:flex;flex-direction:column;gap:16px">
+          <label><span data-i18n="lbl_current_pw">Current Password</span>
+            <div class="input-with-icon">
+              <input type="password" id="change-pw-current" required />
+              <button type="button" class="btn-eye" data-target="change-pw-current"><svg width="18" height="18"><use href="#i-eye"/></svg></button>
+            </div>
+          </label>
+          <label><span data-i18n="lbl_new_pw">New Password</span>
+            <div class="input-with-icon">
+              <input type="password" id="change-pw-new" required />
+              <button type="button" class="btn-eye" data-target="change-pw-new"><svg width="18" height="18"><use href="#i-eye"/></svg></button>
+            </div>
+          </label>
+          <label><span data-i18n="lbl_confirm_pw">Confirm New Password</span>
+            <div class="input-with-icon">
+              <input type="password" id="change-pw-confirm" required />
+              <button type="button" class="btn-eye" data-target="change-pw-confirm"><svg width="18" height="18"><use href="#i-eye"/></svg></button>
+            </div>
+          </label>
+          <button type="submit" class="btn-primary" style="margin-top:4px"><span data-i18n="btn_change_pw">Change Password</span></button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Reveal Password Modal -->
+  <div id="modal-confirm-reveal" class="modal-overlay hidden">
+    <div class="modal-card" style="width:380px">
+      <div class="modal-head">
+        <h2 data-i18n="confirm_reveal_title">Confirm Identity</h2>
+        <button class="btn-close" id="btn-close-confirm-reveal"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-row-desc" style="margin-bottom:14px" data-i18n="confirm_reveal_desc">Enter master password to reveal the stored password.</div>
+        <label><span data-i18n="lbl_master_password">Master Password</span>
+          <div class="input-with-icon">
+            <input type="password" id="confirm-reveal-pw" autocomplete="off" spellcheck="false" />
+            <button type="button" class="btn-eye" data-target="confirm-reveal-pw"><svg width="18" height="18"><use href="#i-eye"/></svg></button>
+          </div>
+        </label>
+        <div id="confirm-reveal-error" class="error-msg hidden"></div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button id="btn-confirm-reveal-ok" class="btn-primary" style="flex:1"><span data-i18n="btn_confirm">Confirm</span></button>
+          <button id="btn-confirm-reveal-cancel" class="btn-ghost"><span data-i18n="btn_cancel">Cancel</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Settings Modal -->
+  <div id="modal-quick-settings" class="modal-overlay hidden">
+    <div class="modal-card" style="width:480px; max-height:80vh; overflow-y:auto;">
+      <div class="modal-head">
+        <h2 data-i18n="settings_title">Settings</h2>
+        <button class="btn-close" id="btn-close-quick-settings"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-card" style="margin-bottom: 16px;">
+          <h3 class="settings-card-title"><svg width="18" height="18"><use href="#i-settings"/></svg> <span data-i18n="settings_appearance">Appearance</span></h3>
+          <div class="settings-row">
+            <div class="settings-row-label">
+              <div data-i18n="settings_theme">Theme</div>
+              <div class="settings-row-desc" data-i18n="settings_theme_desc">Choose the application color theme</div>
+            </div>
+            <div class="custom-select settings-select" id="quick-theme-select">
+              <div class="select-selected" id="quick-theme-display">Default (Dark)</div>
+              <div class="select-items hidden" id="quick-theme-options">
+                <div data-val="default" data-i18n="theme_default">Default (Dark)</div>
+                <div data-val="light" data-i18n="theme_light">Light</div>
+                <div data-val="oled" data-i18n="theme_oled">OLED Black</div>
+                <div data-val="ocean" data-i18n="theme_ocean">Ocean</div>
+                <div data-val="forest" data-i18n="theme_forest">Forest</div>
+                <div data-val="mocha" data-i18n="theme_mocha">Mocha</div>
+                <div data-val="nordic" data-i18n="theme_nordic">Nordic</div>
+              </div>
+              <input type="hidden" id="quick-setting-theme" value="default" />
+              <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">
+              <div data-i18n="settings_language">Language</div>
+              <div class="settings-row-desc" data-i18n="settings_language_desc">Choose the interface language</div>
+            </div>
+            <div class="custom-select settings-select" id="quick-lang-select">
+              <div class="select-selected" id="quick-lang-display">English</div>
+              <div class="select-items hidden" id="quick-lang-options">
+                <div data-val="en">English</div>
+                <div data-val="ru">Русский</div>
+              </div>
+              <input type="hidden" id="quick-setting-lang" value="en" />
+              <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h3 class="settings-card-title"><svg width="18" height="18"><use href="#i-shield"/></svg> <span data-i18n="settings_protection">Screen & Privacy</span></h3>
+          <div class="settings-row">
+            <div class="settings-row-label">
+              <div data-i18n="settings_screen_protect">Screen Capture Protection</div>
+              <div class="settings-row-desc" data-i18n="settings_screen_protect_desc">Hide content from screenshots, screen sharing and spyware</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="quick-setting-screen-protect"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">
+              <div data-i18n="settings_window_mask">Window Title Masking</div>
+              <div class="settings-row-desc" data-i18n="settings_window_mask_desc">Show "Untitled - Notepad" in the taskbar instead of Locke</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="quick-setting-window-mask"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <button id="btn-save-quick-settings" class="btn-primary" style="margin-top: 16px;" data-i18n="btn_save">Save</button>
+      </div>
+    </div>
+  </div>
+
+<div id="toast" class="toast hidden"></div>
+
+<!-- Wallet Create/Import Modal -->
+<div id="modal-wallet" class="modal-overlay hidden">
+  <div class="modal-card" style="width:520px;max-width:95vw">
+    <div class="modal-head">
+      <h2 data-i18n="wallet_create_title">New Wallet</h2>
+      <button class="btn-close" id="btn-close-wallet-modal"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-group" style="margin-bottom:20px">
+        <button class="tab active" id="tab-wallet-gen" data-i18n="wallet_tab_generate">Generate</button>
+        <button class="tab" id="tab-wallet-import" data-i18n="wallet_tab_import">Import</button>
+      </div>
+      <div id="wallet-panel-gen">
+        <label><span data-i18n="wallet_name_label">Wallet Name</span><input type="text" id="wallet-gen-name" data-i18n-ph="wallet_name_ph" placeholder="My Wallet" /></label>
+        <label style="margin-top:12px"><span data-i18n="wallet_words">Word Count</span>
+          <div class="custom-select" id="custom-wallet-words-select" style="margin-top:6px">
+            <div class="select-selected" id="wallet-gen-words-display" data-i18n="wallet_words_12">12 words (recommended)</div>
+            <div class="select-items hidden">
+              <div data-val="12" data-i18n="wallet_words_12">12 words (recommended)</div>
+              <div data-val="24" data-i18n="wallet_words_24">24 words</div>
+            </div>
+            <input type="hidden" id="wallet-gen-words" value="12" />
+            <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+          </div>
+        </label>
+        <button id="btn-gen-wallet" class="btn-primary" style="margin-top:16px" data-i18n="wallet_generate_btn">Generate Seed Phrase</button>
+        <div id="wallet-mnemonic-box" class="hidden" style="margin-top:20px">
+          <div class="mnemonic-warning" data-i18n="wallet_backup_warning">⚠️ Write down this phrase! It cannot be recovered if lost.</div>
+          <div id="wallet-mnemonic-words" class="mnemonic-grid"></div>
+          <label class="lbl-check" style="margin-top:14px">
+            <input type="checkbox" id="wallet-backed-up" />
+            <span data-i18n="wallet_backed_up">I have safely backed up my seed phrase</span>
+          </label>
+          <button id="btn-save-gen-wallet" class="btn-primary" style="margin-top:12px" disabled data-i18n="wallet_save_btn">Save Wallet</button>
+        </div>
+      </div>
+      <div id="wallet-panel-import" class="hidden">
+        <label><span data-i18n="wallet_name_label">Wallet Name</span><input type="text" id="wallet-import-name" data-i18n-ph="wallet_name_ph" placeholder="My Wallet" /></label>
+        <label style="margin-top:12px"><span data-i18n="wallet_seed_label">Seed Phrase</span><textarea id="wallet-import-phrase" rows="3" data-i18n-ph="wallet_seed_ph" placeholder="word1 word2 word3 ..."></textarea></label>
+        <div id="wallet-import-status" style="margin-top:8px;font-size:.8rem"></div>
+        <button id="btn-import-wallet" class="btn-primary" style="margin-top:12px" data-i18n="wallet_import_btn">Import Wallet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ETH Send Modal -->
+<div id="modal-eth-send" class="modal-overlay hidden">
+  <div class="modal-card" style="width:460px;max-width:95vw">
+    <div class="modal-head">
+      <h2 data-i18n="wallet_send_title">Send ETH</h2>
+      <button class="btn-close" id="btn-close-eth-send"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+      <div style="background:var(--surf2);border:1px solid var(--brd);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px">
+        <span data-i18n="wallet_send_from" style="font-size:.8rem;color:var(--muted);font-weight:500">From:</span>
+        <code id="send-eth-from" style="font-size:.85rem;color:var(--text);word-break:break-all;font-family:monospace"></code>
+      </div>
+      <input type="hidden" id="send-wallet-id" />
+      <label><span data-i18n="wallet_send_to">To Address</span><input type="text" id="send-eth-to" placeholder="0x…" style="font-family:monospace" /></label>
+      <label><span data-i18n="wallet_send_amount">Amount (ETH)</span><input type="number" id="send-eth-amount" step="0.0001" min="0" placeholder="0.01" /></label>
+      <details style="background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:12px;padding:12px 16px">
+        <summary style="cursor:pointer;font-size:.85rem;color:var(--muted);font-weight:500;user-select:none" data-i18n="wallet_advanced">Advanced Settings</summary>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+          <label style="margin-bottom:0"><span data-i18n="wallet_rpc_url">RPC URL</span><input type="text" id="send-eth-rpc" value="https://cloudflare-eth.com/" /></label>
+          <label style="margin-bottom:0"><span data-i18n="wallet_chain_id">Chain ID</span><input type="number" id="send-eth-chain" value="1" min="1" /></label>
+        </div>
+      </details>
+      <button id="btn-eth-preview" class="btn-ghost" style="margin-top:8px" data-i18n="wallet_preview_btn">Preview Transaction</button>
+      <div id="eth-tx-preview" class="hidden" style="background:var(--surf2);border-radius:12px;padding:16px;font-size:.9rem;display:flex;flex-direction:column;gap:10px;border:1px solid var(--brd)">
+        <div style="display:flex;justify-content:space-between;color:var(--muted)"><span data-i18n="wallet_gas_price">Gas Price</span> <strong id="preview-gas-gwei" style="color:var(--text)"></strong></div>
+        <div style="display:flex;justify-content:space-between;color:var(--muted)"><span data-i18n="wallet_fee">Network Fee</span> <strong id="preview-fee-eth" style="color:var(--text)"></strong></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid var(--brd);padding-top:10px;margin-top:2px;font-weight:600"><span data-i18n="wallet_total">Total</span> <strong id="preview-total-eth" style="color:var(--acc)"></strong></div>
+      </div>
+      <div id="eth-tx-result" class="hidden" style="word-break:break-all;font-size:.85rem;background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.3);color:#81c784;padding:12px 16px;border-radius:12px"></div>
+      <button id="btn-eth-confirm" class="btn-primary hidden" data-i18n="wallet_confirm_send">Confirm & Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Swap Modal -->
+<div id="modal-swap" class="modal-overlay hidden">
+  <div class="modal-card" style="width:480px;max-width:95vw;background:#111111;color:#fff;border:1px solid #222;border-radius:20px;overflow:visible">
+    <div class="modal-head" style="border-bottom:none;padding:20px 24px 10px">
+      <h2 data-i18n="wallet_swap" style="font-size:1.3rem;font-weight:600;margin:0">Обмен</h2>
+      <button class="btn-close" id="btn-close-swap" style="color:#888;background:transparent;border:none;cursor:pointer;padding:4px"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:20px;padding:10px 24px 24px;overflow:visible">
+      <input type="hidden" id="swap-wallet-id" />
+      
+      <div style="display:flex;gap:16px;position:relative;z-index:3">
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+          <label style="margin:0;font-size:.85rem;color:#888;font-weight:500" data-i18n="swap_from">Отдаёте</label>
+          <div class="custom-select" id="swap-from-container" style="margin-top:0">
+            <div class="select-selected" style="padding:14px 16px;border-radius:12px;background:#0a0a0a;border-color:#222;display:flex;align-items:center;height:52px;box-sizing:border-box"></div>
+            <div class="select-items hidden" style="border-radius:12px;background:#1a1a1a;border-color:#333;max-height:200px;overflow-y:auto"></div>
+            <input type="hidden" id="swap-from-asset" />
+            <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+          <label style="margin:0;font-size:.85rem;color:#888;font-weight:500" data-i18n="swap_amount">Сумма</label>
+          <input type="number" id="swap-from-amount" step="any" min="0" placeholder="0.00" style="width:100%;background:#0a0a0a;border:1px solid #222;color:#fff;padding:14px 16px;border-radius:12px;font-size:.95rem;box-sizing:border-box;outline:none;height:52px" />
+        </div>
+      </div>
+
+      <div style="text-align:center;margin:-10px 0;position:relative;z-index:2">
+        <button id="btn-swap-flip" style="background:#1a1a1a;border:1px solid #222;color:#fff;padding:8px 20px;border-radius:20px;font-size:.85rem;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.2s">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          <span data-i18n="swap_flip">Сменить</span>
+        </button>
+      </div>
+
+      <div style="display:flex;gap:16px;position:relative;z-index:1">
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+          <label style="margin:0;font-size:.85rem;color:#888;font-weight:500" data-i18n="swap_to">Получаете</label>
+          <div class="custom-select" id="swap-to-container" style="margin-top:0">
+            <div class="select-selected" style="padding:14px 16px;border-radius:12px;background:#0a0a0a;border-color:#222;display:flex;align-items:center;height:52px;box-sizing:border-box"></div>
+            <div class="select-items hidden" style="border-radius:12px;background:#1a1a1a;border-color:#333;max-height:200px;overflow-y:auto"></div>
+            <input type="hidden" id="swap-to-asset" />
+            <svg width="16" height="16" class="select-arrow"><use href="#i-chevron-down"/></svg>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+          <label style="margin:0;font-size:.85rem;color:#888;font-weight:500" data-i18n="swap_receive">Вы получите (~)</label>
+          <input type="text" id="swap-to-amount" readonly placeholder="—" style="width:100%;background:#1a1a1a;border:1px solid #222;color:#fff;padding:14px 16px;border-radius:12px;font-size:.95rem;box-sizing:border-box;outline:none;height:52px" />
+        </div>
+      </div>
+
+      <button id="btn-swap-quote" style="width:100%;background:#1a1a1a;border:1px solid #222;color:#fff;padding:16px;border-radius:12px;font-size:.95rem;font-weight:600;cursor:pointer;transition:background 0.2s;margin-top:4px" data-i18n="swap_calculate">Рассчитать курс</button>
+
+      <div id="swap-quote-result" class="hidden" style="background:#1a1a1a;border:1px solid #222;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;font-size:.9rem">
+        <div style="display:flex;justify-content:space-between;color:#888"><span data-i18n="swap_rate">Курс</span><strong id="swap-rate-display" style="color:#fff"></strong></div>
+        <div style="display:flex;justify-content:space-between;color:#888"><span data-i18n="swap_from_usd">Отдаёте (USD)</span><strong id="swap-from-usd" style="color:#fff"></strong></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:10px;font-weight:600"><span data-i18n="swap_to_usd">Получаете (USD)</span><strong id="swap-to-usd" style="color:#fff"></strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #333;padding-top:10px">
+          <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0">
+            <span style="font-size:.78rem;color:#888" data-i18n="swap_to_address">Адрес получения</span>
+            <span id="swap-to-address-display" style="font-size:.8rem;color:#aaa;word-break:break-all"></span>
+          </div>
+        </div>
+        <button id="btn-execute-swap" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-size:.95rem;font-weight:600;margin-top:4px" data-i18n="swap_exchange">Обменять на ChangeNow</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Receive Modal -->
+<div id="modal-receive" class="modal-overlay hidden">
+  <div class="modal-card" style="width:420px;max-width:95vw">
+    <div class="modal-head">
+      <h2 data-i18n="wallet_receive">Receive</h2>
+      <button class="btn-close" id="btn-close-receive"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:16px;align-items:center">
+      <div id="receive-asset-info" style="text-align:center">
+        <div id="receive-asset-name" style="font-size:1.1rem;font-weight:700"></div>
+        <div id="receive-network-name" style="font-size:.85rem;color:var(--muted);margin-top:4px"></div>
+      </div>
+      <code id="receive-address" style="font-size:.82rem;word-break:break-all;text-align:center;background:var(--surf2);padding:14px;border-radius:10px;border:1px solid var(--brd);width:100%;box-sizing:border-box;font-family:monospace;line-height:1.6"></code>
+      <button id="btn-copy-receive-addr" class="btn-primary" style="width:100%" data-i18n="wallet_copy_address">Copy Address</button>
+    </div>
+  </div>
+</div>
+
+<!-- Send Token Modal -->
+<div id="modal-token-send" class="modal-overlay hidden">
+  <div class="modal-card" style="width:460px;max-width:95vw">
+    <div class="modal-head">
+      <h2 id="token-send-title" data-i18n="wallet_token_send_title">Send Token</h2>
+      <button class="btn-close" id="btn-close-token-send"><svg width="20" height="20"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+      <div style="background:var(--surf2);border:1px solid var(--brd);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px">
+        <span data-i18n="wallet_send_from" style="font-size:.8rem;color:var(--muted);font-weight:500">From:</span>
+        <code id="token-send-from" style="font-size:.85rem;color:var(--text);word-break:break-all;font-family:monospace"></code>
+      </div>
+      <input type="hidden" id="token-send-wallet-id" />
+      <input type="hidden" id="token-send-contract" />
+      <input type="hidden" id="token-send-decimals" />
+      <input type="hidden" id="token-send-chain-id-hidden" />
+      <label><span data-i18n="wallet_send_to">To Address</span><input type="text" id="token-send-to" placeholder="0x…" style="font-family:monospace" /></label>
+      <label id="token-send-amount-label"><span data-i18n="wallet_send_amount">Amount</span><input type="number" id="token-send-amount" step="0.000001" min="0" placeholder="10.00" /></label>
+      <details style="background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:12px;padding:12px 16px">
+        <summary style="cursor:pointer;font-size:.85rem;color:var(--muted);font-weight:500;user-select:none" data-i18n="wallet_advanced">Advanced Settings</summary>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+          <label style="margin-bottom:0"><span data-i18n="wallet_rpc_url">RPC URL</span><input type="text" id="token-send-rpc" value="https://cloudflare-eth.com/" /></label>
+        </div>
+      </details>
+      <button id="btn-token-preview" class="btn-ghost" style="margin-top:8px" data-i18n="wallet_preview_btn">Preview Transaction</button>
+      <div id="token-tx-preview" class="hidden" style="background:var(--surf2);border-radius:12px;padding:16px;font-size:.9rem;display:flex;flex-direction:column;gap:10px;border:1px solid var(--brd)">
+        <div style="display:flex;justify-content:space-between;color:var(--muted)"><span data-i18n="wallet_gas_price">Gas Price</span> <strong id="token-preview-gas-gwei" style="color:var(--text)"></strong></div>
+        <div style="display:flex;justify-content:space-between;color:var(--muted)"><span data-i18n="wallet_fee">Network Fee (ETH)</span> <strong id="token-preview-fee-eth" style="color:var(--text)"></strong></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid var(--brd);padding-top:10px;margin-top:2px;font-weight:600"><span data-i18n="wallet_token_amount_label">Token Amount</span> <strong id="token-preview-amount" style="color:var(--acc)"></strong></div>
+      </div>
+      <div id="token-tx-result" class="hidden" style="word-break:break-all;font-size:.85rem;background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.3);color:#81c784;padding:12px 16px;border-radius:12px"></div>
+      <button id="btn-token-confirm" class="btn-primary hidden" data-i18n="wallet_confirm_send">Confirm & Send</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="main.js"></script>
+</body>
+</html>

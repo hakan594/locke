@@ -1,0 +1,103 @@
+[package]
+name = "locke"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "keepass_rs_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Cryptography — AES-256-GCM
+aes-gcm = { version = "0.10", features = ["std"] }
+
+# Cryptography — ChaCha20-Poly1305 (second cipher layer)
+chacha20poly1305 = { version = "0.10", features = ["std"] }
+
+# KDF — Argon2id
+argon2 = { version = "0.5", features = ["std"] }
+
+# CSPRNG
+rand = "0.8"
+
+# Memory zeroing
+zeroize = { version = "1", features = ["derive"] }
+
+# Base64 for encoding secrets
+base64ct = { version = "1", features = ["std"] }
+
+# TOTP 2FA (RFC 6238)
+totp-rs = { version = "5", features = ["gen_secret", "qr"] }
+
+# YubiKey HMAC-SHA1 challenge-response via Windows Smart Card (CCID/PCSC)
+pcsc = "2"
+hmac = "0.12"
+sha1 = "0.10"
+
+# Timestamps
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID for entry IDs
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Hex encoding (for YubiKey challenge/response)
+hex = "0.4"
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Self-integrity SHA-256 (Feature 14)
+sha2 = "0.10"
+
+# ── HD Wallet ──────────────────────────────────────────────────────────────────
+# BIP32 HD key derivation (XPrv / DerivationPath)
+bip32 = "0.5"
+# BIP39 mnemonic phrases
+bip39 = "1"
+# Bech32 encoding (Bitcoin bc1q… addresses)
+bech32 = "0.9"
+# Base58 encoding (Solana, …)
+bs58 = "0.5"
+# ed25519 signing keys (Solana / TON via SLIP-0010)
+ed25519-dalek = "2"
+# secp256k1 ECDSA (Ethereum / BTC / TRX / DOGE / LTC signing)
+k256 = { version = "0.13", features = ["ecdsa", "arithmetic"] }
+# RIPEMD-160 (Bitcoin hash160)
+ripemd = "0.1"
+# Keccak-256 (Ethereum address derivation)
+sha3 = "0.10"
+# Async HTTP client (balance queries, swap quotes, ETH RPC)
+reqwest = { version = "0.12", features = ["json"] }
+
+# Windows security APIs (Features 9, 10, 11, 12, 16)
+[target.'cfg(target_os = "windows")'.dependencies]
+winapi = { version = "0.3", features = [
+    "processthreadsapi",
+    "libloaderapi",
+    "winuser",
+    "handleapi",
+    "tlhelp32",
+    "debugapi",
+] }
+
+[profile.release]
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+debug = false
+overflow-checks = false
+incremental = false

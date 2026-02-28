@@ -1,0 +1,4 @@
+[build]
+# Redirect build artifacts to a temp directory without Cyrillic characters
+# (Cargo build scripts fail on non-ASCII paths on Windows)
+target-dir = "C:/cargo-target/locke"
